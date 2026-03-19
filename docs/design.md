@@ -6,9 +6,10 @@ This project goal is to display in real time, the usage of hardware components i
 main.py - Entry point and CLI parser. Initializer of the subsystems.
 
 ### Subsytems:
- Collector - Live data gathering through system APIs.
+ * Collector - Live data gathering through system APIs.
+   * Each function will be assigned to a thread, so it could calculate the statistics on the same interval.
 
- Logger - Appending incoming data from the 'Collector' to the log file, at shutdown appends current data. JSON format.
+ * Logger - Appending incoming data from the 'Collector' to the log file, at shutdown appends current data. JSON format.
  
- Display - Live rendered data, that was collected from the 'Collector'.
+ * Display - Live rendered data, that was collected from the 'Collector'.
 
