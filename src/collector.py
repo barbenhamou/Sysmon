@@ -27,7 +27,7 @@ def collect_memory_statistics() -> list[int]:
 def collect_disk_statistics() -> list[list[int]]:
     """
     Collect disk statistics, per partition.
-    :return: A list of total/used/free/percent for every partition.
+    :return: A list of used/total/percent for every partition.
     """
 
     partitions_lst = psutil.disk_partitions(True)
