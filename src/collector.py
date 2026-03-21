@@ -5,6 +5,13 @@ from concurrent.futures import ThreadPoolExecutor
 import src.logger as logger
 
 g_partition_lst = set()
+g_stats_units = {
+        "cpu_stats": "%",
+        "cpu_stats_per_core": "%,...,%",
+        "mem_stats": "b, b, %",
+        "disk_stats": "b, b, b, %",
+        "net_stats": "b/s Upload, b/s Download"
+    }
 
 def collect_cpu_statistics(interval: float = 1, per_cpu: bool = False) -> list[float]:
     """
@@ -91,11 +98,13 @@ def collect_network_statistics(interval: float) -> list[float]:
 
     return [delta_upload / interval, delta_download / interval]
 
-def collect_stats(interval: float) -> dict[str, list]:
+def collect_stats(interval: float = 1) -> (dict[str, list], dict[str, str]):
     """
     :param interval: The time interval in seconds, over which system's statistics are calculated.
     :return: A dictionary with all the collected statistics.
     """
+    global g_partition_lst
+
     with ThreadPoolExecutor(max_workers=5) as ex:
         cpu_stats = ex.submit(collect_cpu_statistics, interval=interval)
         cpu_stats_per_core = ex.submit(collect_cpu_statistics, interval=interval, per_cpu=True)
@@ -115,5 +124,5 @@ def collect_stats(interval: float) -> dict[str, list]:
         "disk_stats": disk_stats.result(),
         "net_stats": net_stats.result()
     }
-    return stats_dict
+    return stats_dict, g_stats_units
 

@@ -10,8 +10,13 @@ main.py - Entry point and CLI parser. Initializer of the subsystems.
    * Each function will be assigned to a thread, so it could calculate the statistics on the same interval.
 
  * Logger - Appending incoming data from the 'Collector' to the log file, at shutdown appends current data. JSON format.
-   * Function as an independent thread that periodically adds data, would add a json label for occurred errors.
+   * Logs are buffered into a queue-like list, then on independent thread are appended to the log file. Errors have
+   * their own json description.
  * Display - Live rendered data, that was collected from the 'Collector'.
 
 ## Table Vision
 ![First sketch table](assets/TableVisionary1.png)
+ * Decided to not pursue units, as its causing a
+
+
+
