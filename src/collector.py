@@ -1,5 +1,6 @@
 import psutil
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 g_partition_lst = set()
 
@@ -84,3 +85,31 @@ def collect_network_statistics(interval: float) -> list[float]:
     delta_download = net_time_stamp_b.bytes_recv - net_time_stamp_a.bytes_recv
 
     return [delta_upload / interval, delta_download / interval]
+
+def collect_stats(interval: float) -> dict[str, list]:
+    """
+    :param interval: The time interval in seconds, over which system's statistics are calculated.
+    :return: A dictionary with all the collected statistics.
+    """
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        cpu_stats = ex.submit(collect_cpu_statistics, interval=interval)
+        cpu_stats_per_core = ex.submit(collect_cpu_statistics, interval=interval, per_cpu=True)
+        mem_stats = ex.submit(collect_memory_statistics)
+        disk_stats = ex.submit(collect_disk_statistics)
+        net_stats = ex.submit(collect_network_statistics, interval=interval)
+
+    if not (cpu_stats and cpu_stats_per_core and mem_stats and disk_stats and net_stats):
+        # TODO: Add Logger reports on error, failed stats.
+        pass
+
+    stats_dict = {
+        "type": ["stats"],
+        "timestamp": [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())],
+        "cpu_stats": cpu_stats.result(),
+        "cpu_stats_per_core": cpu_stats_per_core.result(),
+        "mem_stats": mem_stats.result(),
+        "disk_stats": disk_stats.result(),
+        "net_stats": net_stats.result()
+    }
+    return stats_dict
+

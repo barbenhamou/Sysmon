@@ -1,29 +1,57 @@
 import json
+from threading import Lock
+import time
 
 class Logger:
+    """
+    This class is responsible for logging the data collected by the collector module.
+    """
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.stats = dict()
         self.errors = list()
+        self.loq_queue = list(dict)
+        self.log_mutex = Lock()
 
-    def append_log(self):
+    def append_log(self, stats: dict[str, list]):
         """
-        This function writes to the log file the data from the previous run. The log file in json format.
-        Flushes error and stats at the end.
+        This function appends the data collected by the collector module to the log queue.
         :return:
         """
-        pass
+        self.log_mutex.acquire()
+        try:
+            self.loq_queue.append(stats)
+        finally:
+            self.log_mutex.release()
 
-    def add_error(self):
+    def append_error(self, subsystem, error):
         """
-        This function adds an error to the list of errors. Will be added as a label in the json.
+        This function adds appends an error from the collector module to the log queue.
         :return:
         """
-        pass
+        error_log = {
+            "type": ["error"],
+            "timestamp": [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())],
+            "subsystem": subsystem,
+            "error description": error
+        }
 
-    def update_stats(self):
+        self.log_mutex.acquire()
+        try:
+            self.loq_queue.append(error_log)
+        finally:
+            self.log_mutex.release()
+
+    def write_logs(self):
         """
-        Updates the stats from the collector's results.
+        This function writes to the log file the data from the run. The log file in json format.
         :return:
         """
-        pass
+        self.log_mutex.acquire()
+        try:
+            top_log = self.loq_queue.pop(0)
+        finally:
+            self.log_mutex.release()
+
+        with open(self.file_path, "a") as f:
+            f.write(json.dumps(top_log) + "\n")
