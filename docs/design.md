@@ -10,6 +10,6 @@ main.py - Entry point and CLI parser. Initializer of the subsystems.
    * Each function will be assigned to a thread, so it could calculate the statistics on the same interval.
 
  * Logger - Appending incoming data from the 'Collector' to the log file, at shutdown appends current data. JSON format.
- 
+   * Function as an independent thread that periodically adds data, would add a json label for occurred errors.
  * Display - Live rendered data, that was collected from the 'Collector'.
 

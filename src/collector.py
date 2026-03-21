@@ -1,6 +1,8 @@
 import psutil
 import time
 
+g_partition_lst = set()
+
 def collect_cpu_statistics(interval: float = 1, per_cpu: bool = False) -> list[float]:
     """
     :param interval: The time interval in seconds, over which CPU utilization is calculated.
@@ -10,8 +12,16 @@ def collect_cpu_statistics(interval: float = 1, per_cpu: bool = False) -> list[f
     lst = []
     if per_cpu:
         lst =  psutil.cpu_percent(interval=interval, percpu=True)
+        if not lst:
+            # TODO: Add Logger reports on error, failed cpu stats.
+            pass
+
     else:
-        lst.append(psutil.cpu_percent(interval=interval))
+        stat = psutil.cpu_percent(interval=interval)
+        if not stat:
+            # TODO: Add Logger reports on error, failed cpu stats.
+            pass
+        lst.append(stat)
 
     return lst
 
@@ -21,6 +31,9 @@ def collect_memory_statistics() -> list[int]:
     :return: A list of total memory, used memory, available memory, and percentage of used memory.
     """
     mem = psutil.virtual_memory()
+    if not mem:
+        # TODO: Add Logger reports on error, RAM stats failed.
+        pass
     return [mem.used, mem.total, mem.percent]
 
 
@@ -29,11 +42,22 @@ def collect_disk_statistics() -> list[list[int]]:
     Collect disk statistics, per partition.
     :return: A list of used/total/percent for every partition.
     """
+    global g_partition_lst
 
-    partitions_lst = psutil.disk_partitions(True)
+    partitions_lst = set(psutil.disk_partitions(True))
+    if partitions_lst != g_partition_lst:
+        symmetric_difference = partitions_lst ^ g_partition_lst
+        # TODO: Add Logger reports on error, new partitions.
+        pass
+
+    g_partition_lst = partitions_lst
+
     stats_lst = []
     for partition in partitions_lst:
         partition_stats = psutil.disk_usage(partition.mountpoint)
+        if not partition_stats:
+            # TODO: Add Logger reports on error, failed partition stats.
+            pass
         stats_lst.append([partition_stats.total, partition_stats.used, partition_stats.free, partition_stats.percent])
 
     return stats_lst
@@ -46,8 +70,15 @@ def collect_network_statistics(interval: float) -> list[float]:
     """
 
     net_time_stamp_a =  psutil.net_io_counters()
+    if not net_time_stamp_a:
+        # TODO: Add Logger reports on error, failed network stats.
+        pass
+
     time.sleep(interval)
     net_time_stamp_b = psutil.net_io_counters()
+    if not net_time_stamp_b:
+        # TODO: Add Logger reports on error, failed network stats.
+        pass
 
     delta_upload = net_time_stamp_b.bytes_sent - net_time_stamp_a.bytes_sent
     delta_download = net_time_stamp_b.bytes_recv - net_time_stamp_a.bytes_recv
