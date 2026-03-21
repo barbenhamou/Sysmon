@@ -13,3 +13,5 @@ main.py - Entry point and CLI parser. Initializer of the subsystems.
    * Function as an independent thread that periodically adds data, would add a json label for occurred errors.
  * Display - Live rendered data, that was collected from the 'Collector'.
 
+## Table Vision
+![First sketch table](assets/TableVisionary1.png)
