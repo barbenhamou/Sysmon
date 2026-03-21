@@ -2,6 +2,8 @@ import json
 from threading import Lock
 import time
 
+g_logger = None
+
 class Logger:
     """
     This class is responsible for logging the data collected by the collector module.
@@ -10,7 +12,7 @@ class Logger:
         self.file_path = file_path
         self.stats = dict()
         self.errors = list()
-        self.loq_queue = list(dict)
+        self.loq_queue: list[dict] = list()
         self.log_mutex = Lock()
 
     def append_log(self, stats: dict[str, list]):
@@ -47,11 +49,15 @@ class Logger:
         This function writes to the log file the data from the run. The log file in json format.
         :return:
         """
-        self.log_mutex.acquire()
-        try:
-            top_log = self.loq_queue.pop(0)
-        finally:
-            self.log_mutex.release()
+        while True:
+            if self.loq_queue == list():
+                continue
 
-        with open(self.file_path, "a") as f:
-            f.write(json.dumps(top_log) + "\n")
+            self.log_mutex.acquire()
+            try:
+                top_log = self.loq_queue.pop(0)
+            finally:
+                self.log_mutex.release()
+
+            with open(self.file_path, "a") as f:
+                f.write(json.dumps(top_log) + "\n")

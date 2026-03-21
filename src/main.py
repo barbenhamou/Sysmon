@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from pathlib import Path
+import src.logger as logger
 
 def main():
     """
@@ -20,6 +21,8 @@ def main():
     if interval <= 0:
         print("Polling frequency must be >0. O.w it's a math crime!!")
         return
+
+    logger.g_logger = logger.Logger(str(args.log))
 
 if __name__ == '__main__':
     main()

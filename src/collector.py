@@ -1,6 +1,8 @@
+import threading
 import psutil
 import time
 from concurrent.futures import ThreadPoolExecutor
+import src.logger as logger
 
 g_partition_lst = set()
 
@@ -14,27 +16,30 @@ def collect_cpu_statistics(interval: float = 1, per_cpu: bool = False) -> list[f
     if per_cpu:
         lst =  psutil.cpu_percent(interval=interval, percpu=True)
         if not lst:
-            # TODO: Add Logger reports on error, failed cpu stats.
-            pass
+            logger.g_logger.append_error("cpu", "Failed to collect cpu per core stats.")
+            return [-1]
 
     else:
         stat = psutil.cpu_percent(interval=interval)
         if not stat:
-            # TODO: Add Logger reports on error, failed cpu stats.
-            pass
+            logger.g_logger.append_error("cpu", "Failed to collect cpu stats.")
+            return [-1]
+
         lst.append(stat)
 
     return lst
 
-def collect_memory_statistics() -> list[int]:
+def collect_memory_statistics() -> list[float]:
     """
     Collect memory statistics.
     :return: A list of total memory, used memory, available memory, and percentage of used memory.
     """
     mem = psutil.virtual_memory()
+
     if not mem:
-        # TODO: Add Logger reports on error, RAM stats failed.
-        pass
+        logger.g_logger.append_error("memory", "Failed to collect memory stats.")
+        return [-1]
+
     return [mem.used, mem.total, mem.percent]
 
 
@@ -46,10 +51,10 @@ def collect_disk_statistics() -> list[list[int]]:
     global g_partition_lst
 
     partitions_lst = set(psutil.disk_partitions(True))
-    if partitions_lst != g_partition_lst:
-        symmetric_difference = partitions_lst ^ g_partition_lst
-        # TODO: Add Logger reports on error, new partitions.
-        pass
+    if partitions_lst != g_partition_lst and g_partition_lst != set():
+        dismounted = g_partition_lst - partitions_lst
+        dismounted_lst = [a.mountpoint for a in dismounted]
+        logger.g_logger.append_error("disk", f"Dismounted partitions - {dismounted_lst}.")
 
     g_partition_lst = partitions_lst
 
@@ -57,8 +62,9 @@ def collect_disk_statistics() -> list[list[int]]:
     for partition in partitions_lst:
         partition_stats = psutil.disk_usage(partition.mountpoint)
         if not partition_stats:
-            # TODO: Add Logger reports on error, failed partition stats.
-            pass
+            logger.g_logger.append_error("disk", f"Failed to collect partition stats - {partition.mountpoint}.")
+            continue
+
         stats_lst.append([partition_stats.total, partition_stats.used, partition_stats.free, partition_stats.percent])
 
     return stats_lst
@@ -69,17 +75,16 @@ def collect_network_statistics(interval: float) -> list[float]:
     :param interval: The time interval in seconds, over which network statistics are calculated.
     :return: A list with two parameters - upload and download speed.
     """
-
     net_time_stamp_a =  psutil.net_io_counters()
     if not net_time_stamp_a:
-        # TODO: Add Logger reports on error, failed network stats.
-        pass
+        logger.g_logger.append_error("net", r"Failed to collect network stats - 'net_time_stamp_a' is None.")
+        return [-1]
 
     time.sleep(interval)
     net_time_stamp_b = psutil.net_io_counters()
     if not net_time_stamp_b:
-        # TODO: Add Logger reports on error, failed network stats.
-        pass
+        logger.g_logger.append_error("net", r"Failed to collect network stats - 'net_time_stamp_b' is None.")
+        return [-1]
 
     delta_upload = net_time_stamp_b.bytes_sent - net_time_stamp_a.bytes_sent
     delta_download = net_time_stamp_b.bytes_recv - net_time_stamp_a.bytes_recv
@@ -99,8 +104,7 @@ def collect_stats(interval: float) -> dict[str, list]:
         net_stats = ex.submit(collect_network_statistics, interval=interval)
 
     if not (cpu_stats and cpu_stats_per_core and mem_stats and disk_stats and net_stats):
-        # TODO: Add Logger reports on error, failed stats.
-        pass
+        logger.g_logger.append_error("collector", "Failed to collect stats.")
 
     stats_dict = {
         "type": ["stats"],
