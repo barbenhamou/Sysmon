@@ -10,8 +10,6 @@ class Logger:
     """
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.stats = dict()
-        self.errors = list()
         self.loq_queue: list[dict] = list()
         self.log_mutex = Lock()
 

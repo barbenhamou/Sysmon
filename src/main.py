@@ -1,6 +1,14 @@
 from argparse import ArgumentParser
 from pathlib import Path
 import src.logger as logger
+import signal
+import time
+
+def signal_handler(sig, frame):
+    logger.g_logger.append_log({"type": ["exit"], "timestamp": [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())]})
+    logger.g_logger.write_logs()
+    print("Ctrl+C pressed. Exiting...")
+    exit(0)
 
 def main():
     """
@@ -23,6 +31,7 @@ def main():
         return
 
     logger.g_logger = logger.Logger(str(args.log))
+    signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
     main()
