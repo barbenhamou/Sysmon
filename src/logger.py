@@ -12,6 +12,7 @@ class Logger:
         self.file_path = file_path
         self.loq_queue: list[dict] = list()
         self.log_mutex = Lock()
+        self.sig = False
 
     def append_log(self, stats: dict[str, list]):
         """
@@ -49,6 +50,8 @@ class Logger:
         """
         while True:
             if self.loq_queue == list():
+                if self.sig:
+                    return
                 continue
 
             self.log_mutex.acquire()
