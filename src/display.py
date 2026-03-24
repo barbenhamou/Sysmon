@@ -5,6 +5,11 @@ import src.logger as logger
 from src.collector import collect_stats
 
 def init_live_display(refresh_per_second: int = 1):
+    """
+    Renders the tables every 'refresh_per_second' seconds. Each time logs the stats to the log file.
+    :param refresh_per_second: The span of time in seconds between each refresh of the display.
+    :return: None.
+    """
     with Live(refresh_per_second=refresh_per_second) as live:
         while True:
             table = Table(title="System Metrics")

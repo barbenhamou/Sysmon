@@ -16,7 +16,10 @@ main.py - Entry point and CLI parser. Initializer of the subsystems.
 
 ## Table Vision
 ![First sketch table](assets/TableVisionary1.png)
- * Decided to not pursue units, as its causing a
+
+## Graceful Shutdown
+
+ * Used signaling + threading's events techniques.
 
 
 
