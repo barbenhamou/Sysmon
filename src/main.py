@@ -1,13 +1,18 @@
+import threading
 from argparse import ArgumentParser
 from pathlib import Path
 import src.logger as logger
 import signal
 import time
+import src.display as display
+
+stop = threading.Event()
 
 def signal_handler(sig, frame):
     logger.g_logger.append_log({"type": ["exit"], "timestamp": [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())]})
-    logger.g_logger.sig = True
-    logger.g_logger.write_logs()
+    stop.set()
+    # logger.g_logger.sig = True
+    # logger.g_logger.write_logs()
     print("Ctrl+C pressed. Exiting...")
     exit(0)
 
@@ -32,7 +37,14 @@ def main():
         return
 
     logger.g_logger = logger.Logger(str(args.log))
+
+    t = threading.Thread(target=logger.g_logger.write_logs, args=(stop,))
+    t.start()
+
     signal.signal(signal.SIGINT, signal_handler)
+    display.init_live_display(refresh_per_second=interval)
+
+    t.join()
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,5 @@
 import json
+import threading
 from threading import Lock
 import time
 
@@ -43,14 +44,14 @@ class Logger:
         finally:
             self.log_mutex.release()
 
-    def write_logs(self):
+    def write_logs(self, stop: threading.Event):
         """
         This function writes to the log file the data from the run. The log file in json format.
         :return:
         """
         while True:
             if self.loq_queue == list():
-                if self.sig:
+                if stop.is_set():
                     return
                 continue
 
