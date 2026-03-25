@@ -1,8 +1,7 @@
-import threading
 import psutil
 import time
 from concurrent.futures import ThreadPoolExecutor
-import src.logger as logger
+import logger
 
 g_partition_lst = set()
 g_stats_units = {

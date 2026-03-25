@@ -1,8 +1,7 @@
 from rich.live import Live
 from rich.table import Table
-import time
-import src.logger as logger
-from src.collector import collect_stats
+import logger
+from collector import collect_stats
 
 def init_live_display(refresh_per_second: int = 1):
     """
@@ -28,5 +27,3 @@ def init_live_display(refresh_per_second: int = 1):
 
 
             live.update(table)
-
-# init_live_display()

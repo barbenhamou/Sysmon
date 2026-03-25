@@ -1,10 +1,10 @@
 import threading
 from argparse import ArgumentParser
 from pathlib import Path
-import src.logger as logger
+import logger
 import signal
 import time
-import src.display as display
+import display
 
 stop = threading.Event()
 
@@ -26,7 +26,7 @@ def main():
 
     args = parser.parse_args()
 
-    log_file = Path(str(args.log)) if args.log and str(args.log).endswith(".json") else "C:\\temp\\log.json"
+    log_file = Path(str(args.log)) if args.log and str(args.log).endswith(".json") else Path("log.json")
     interval = float(args.interval) if args.interval else 1
 
     if not log_file.exists():
@@ -36,7 +36,7 @@ def main():
         print("Polling frequency must be >0. O.w it's a math crime!!")
         return
 
-    logger.g_logger = logger.Logger(str(args.log))
+    logger.g_logger = logger.Logger(str(log_file))
 
     t = threading.Thread(target=logger.g_logger.write_logs, args=(stop,))
     t.start()
