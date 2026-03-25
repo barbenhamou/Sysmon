@@ -13,7 +13,6 @@ class Logger:
         self.file_path = file_path
         self.loq_queue: list[dict] = list()
         self.log_mutex = Lock()
-        self.sig = False
 
     def append_log(self, stats: dict[str, list]):
         """
