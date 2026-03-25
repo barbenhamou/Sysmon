@@ -22,4 +22,14 @@ main.py - Entry point and CLI parser. Initializer of the subsystems.
  * Used signaling + threading's events techniques.
 
 
+## Sources:
+Mostly used the links in the exercise itself.
+Used Chat-GPT for consulting only! specifically told it to answer without nay code implementation (as he did).
+   1. Asked it about possible edge cases.
+   2. Asked it about my ideas for the queueing mechanism.
+   3. Some minor issues, like importing a global variable from file to another correctly (without code).
+Used GFG for the concurrency with ret val - https://www.geeksforgeeks.org/python/how-to-use-threadpoolexecutor-in-python3/
+
+
+
 
