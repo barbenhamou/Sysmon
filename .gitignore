@@ -1,3 +1,5 @@
 venv/
 SysMon.md
 *logs.json
+*log.json
+*sysmon.egg-info/

@@ -12,3 +12,5 @@
     1. run_sysmon - default, interval == 1 and log path == "./log.json".
     2. run_sysmon --log <LOG_PATH> --interval <INTERVAL> -  enter your own path and interval, make sure the file is of json type, and interval is greater than 0.
 
+## Run Example
+![Demo](docs/assets/Demo.gif)
