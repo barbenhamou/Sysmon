@@ -60,6 +60,11 @@ def collect_disk_statistics() -> list[list[int]]:
     global g_partition_lst
 
     partitions_lst = set(psutil.disk_partitions(True))
+    if not partitions_lst:
+        if logger.g_logger:
+            logger.g_logger.append_error("disk", "Failed to collect disk partitions.")
+        return [[-1]]
+
     if partitions_lst != g_partition_lst and g_partition_lst != set():
         dismounted = g_partition_lst - partitions_lst
         dismounted_lst = [a.mountpoint for a in dismounted]

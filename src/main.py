@@ -11,8 +11,6 @@ stop = threading.Event()
 def signal_handler(sig, frame):
     logger.g_logger.append_log({"type": ["exit"], "timestamp": [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())]})
     stop.set()
-    # logger.g_logger.sig = True
-    # logger.g_logger.write_logs()
     print("Ctrl+C pressed. Exiting...")
     exit(0)
 
